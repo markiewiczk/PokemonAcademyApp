@@ -41,7 +41,7 @@ class PokemonList extends React.Component {
             <div>
                 <h1>Pokemon List!</h1>
                 <table>
-                    {this.renderHeader}
+                    {this.renderHeader()}
                     {this.renderList(this.state.pokemonList)}
                 </table>
             </div>    
