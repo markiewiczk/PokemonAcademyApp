@@ -4,16 +4,29 @@ class PokemonList extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = {pokemonList: [] };
+        this.state = {pokemonList: [], next: null, prev: null };
     }
 
     componentDidMount(){
-        fetch('https://pokemonacademyapi-km.herokuapp.com/pokemons/list')
+        this.fetchPokemonList('https://pokemonacademyapi-km.herokuapp.com/pokemons/list')
+    }
+
+    fetchPokemonList = (url) => {
+        fetch(url)
         .then(response=>response.json())
         .then(jsonResponse=>{
-            const results = jsonResponse.results;
-            this.setState({pokemonList: results})
+            console.log(jsonResponse);
+            const { results, next, prev} = jsonResponse;
+            this.setState({pokemonList: results, next: next, prev: prev});
         })
+    }
+
+    onNextButtonClick = () => {
+        this.fetchPokemonList(this.state.next)
+    }
+
+    onPrevButtonClick = () => {
+        this.fetchPokemonList(this.state.prev)
     }
 
     renderList = (pokemonList) => {
@@ -37,13 +50,18 @@ class PokemonList extends React.Component {
 
 
     render(){
+        window.scrollTo(0, 0)
         return(
             <div>
                 <h1>Pokemon List!</h1>
+                {this.state.next && <button onClick={this.onNextButtonClick}>Next</button>}
+                {this.state.prev && <button onClick={this.onPrevButtonClick}>Prev</button>}
                 <table>
                     <thead>{this.renderHeader()}</thead>
                     <tbody>{this.renderList(this.state.pokemonList)}</tbody>
                 </table>
+                {this.state.next && <button onClick={this.onNextButtonClick}>Next</button>}
+                {this.state.prev && <button onClick={this.onPrevButtonClick}>Prev</button>}
             </div>    
         )
     }
