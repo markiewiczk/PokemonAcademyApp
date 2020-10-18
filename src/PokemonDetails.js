@@ -1,4 +1,6 @@
 import React from 'react';
+import { withRouter } from 'react-router-dom'
+
 
 class PokemonDetails extends React.Component {
 
@@ -17,6 +19,10 @@ class PokemonDetails extends React.Component {
             console.log(jsonResponse);
             this.setState({PokemonDetails: jsonResponse});
         }))
+    }
+
+    onBackButtonClick = () => {
+        this.props.history.goBack();
     }
 
     renderPokemon = () => {
@@ -40,9 +46,11 @@ class PokemonDetails extends React.Component {
             <div>
                 <h1>Pokemon Details! </h1>
                 {this.state.PokemonDetails && this.renderPokemon()}
+                {!this.state.PokemonDetails && <h2>Loading details</h2>}
+                <button onClick={this.onBackButtonClick}>Back to list</button>
             </div>
         )
     }
 }
 
-export default PokemonDetails
+export default withRouter(PokemonDetails)
