@@ -1,42 +1,50 @@
 import React from 'react';
+import { withRouter } from 'react-router-dom';
+import loadingHOC from './loadingHOC';
 
 class PokemonList extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = {pokemonList: [], next: null, prev: null };
+        this.state = { pokemonList: [], next: null, prev: null };
     }
 
-    componentDidMount(){
+    componentDidMount() {
         this.fetchPokemonList('https://pokemonacademyapi-km.herokuapp.com/pokemons/list')
     }
 
     fetchPokemonList = (url) => {
         fetch(url)
-        .then(response=>response.json())
-        .then(jsonResponse=>{
+        .then(response => response.json())
+        .then(jsonResponse => {
             console.log(jsonResponse);
-            const { results, next, prev} = jsonResponse;
-            this.setState({pokemonList: results, next: next, prev: prev});
+            const { results, next, prev } = jsonResponse; 
+            this.setState({ pokemonList: results, next: next, prev: prev });
+            this.props.changeLoadingIndicator(false);
         })
     }
 
     onNextButtonClick = () => {
-        this.fetchPokemonList(this.state.next)
+        this.fetchPokemonList(this.state.next);
     }
 
     onPrevButtonClick = () => {
-        this.fetchPokemonList(this.state.prev)
+        this.fetchPokemonList(this.state.prev);
+    }
+
+    onItemClick(name){
+        this.props.history.push({pathname: `/pokemon/${name}`});
     }
 
     renderList = (pokemonList) => {
         return pokemonList.map((pokemon, index) => {
-            const{imageUrl, name, level} = pokemon
-            return <tr key={index}>
-                <td><img src={imageUrl}></img></td>
+            const { imageUrl, name, level } = pokemon;
+            const itemClick = this.onItemClick.bind(this, name);
+            return <tr onClick={itemClick} key={index}>
+                <td><img src={imageUrl} /></td>
                 <td><p>{name}</p></td>
                 <td><p>{level}</p></td>
-                </tr>
+            </tr>
         })
     }
 
@@ -48,23 +56,22 @@ class PokemonList extends React.Component {
         </tr>
     }
 
-
-    render(){
+    render() {
         window.scrollTo(0, 0)
-        return(
+        return (
             <div>
-                <h1>Pokemon List!</h1>
-                {this.state.next && <button onClick={this.onNextButtonClick}>Next</button>}
+                <h1>Pokemon List:</h1>
                 {this.state.prev && <button onClick={this.onPrevButtonClick}>Prev</button>}
+                {this.state.next && <button onClick={this.onNextButtonClick}>Next</button> }
                 <table>
                     <thead>{this.renderHeader()}</thead>
                     <tbody>{this.renderList(this.state.pokemonList)}</tbody>
                 </table>
-                {this.state.next && <button onClick={this.onNextButtonClick}>Next</button>}
                 {this.state.prev && <button onClick={this.onPrevButtonClick}>Prev</button>}
-            </div>    
+                {this.state.next && <button onClick={this.onNextButtonClick}>Next</button> }
+            </div>
         )
     }
 }
 
-export default PokemonList;
+export default loadingHOC(withRouter(PokemonList), 'Loading pokemon list');
