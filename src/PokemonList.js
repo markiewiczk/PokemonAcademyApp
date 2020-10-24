@@ -1,53 +1,55 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { withRouter } from 'react-router-dom'
 
 
-class PokemonList extends React.Component {
+const PokemonList = (props) => {
 
-    constructor(props) {
-        super(props);
-        this.state = {pokemonList: [], next: null, prev: null };
-    }
+    const [pokemonList, setPokemonList] = useState([]);
+    const [next, setNext] = useState(null);
+    const [prev, setPrev] = useState(null);
 
-    componentDidMount(){
-        this.fetchPokemonList('https://pokemonacademyapi-km.herokuapp.com/pokemons/list')
-    }
 
-    fetchPokemonList = (url) => {
+    useEffect(()=>{
+        fetchPokemonList('https://pokemon-academy-api-pbr.herokuapp.com/pokemons/list')
+    }, [])
+
+    const fetchPokemonList = (url) => {
         fetch(url)
-        .then(response=>response.json())
-        .then(jsonResponse=>{
+        .then(response => response.json())
+        .then(jsonResponse => {
             console.log(jsonResponse);
-            const { results, next, prev} = jsonResponse;
-            this.setState({pokemonList: results, next: next, prev: prev});
+            const { results, next, prev } = jsonResponse; 
+            setPokemonList(results);
+            setNext(next);
+            setPrev(prev);
         })
     }
 
-    onNextButtonClick = () => {
-        this.fetchPokemonList(this.state.next)
+    const onNextButtonClick = () => {
+        fetchPokemonList(next);
     }
 
-    onPrevButtonClick = () => {
-        this.fetchPokemonList(this.state.prev)
+    const onPrevButtonClick = () => {
+        fetchPokemonList(prev);
     }
 
-    onItemClick (name)  {
-        this.props.history.push({pathname: `/pokemon/${name}`});
+    const onItemClick = (name) => {
+        props.history.push({pathname: `/pokemon/${name}`});
     }
 
-    renderList = (pokemonList) => {
+    const renderList = (pokemonList) => {
         return pokemonList.map((pokemon, index) => {
-            const{imageUrl, name, level} = pokemon;
-            const itemClick  = this.onItemClick.bind(this, name);
+            const { imageUrl, name, level } = pokemon;
+            const itemClick = onItemClick.bind(this, name);
             return <tr onClick={itemClick} key={index}>
-                <td><img src={imageUrl}></img></td>
+                <td><img src={imageUrl} /></td>
                 <td><p>{name}</p></td>
                 <td><p>{level}</p></td>
-                </tr>
+            </tr>
         })
     }
 
-    renderHeader = () => {
+    const renderHeader = () => {
         return <tr>
             <td><p>Image</p></td>
             <td><p>Name</p></td>
@@ -55,23 +57,20 @@ class PokemonList extends React.Component {
         </tr>
     }
 
-
-    render(){
-        window.scrollTo(0, 0)
-        return(
-            <div>
-                <h1>Pokemon List!</h1>
-                {this.state.next && <button onClick={this.onNextButtonClick}>Next</button>}
-                {this.state.prev && <button onClick={this.onPrevButtonClick}>Prev</button>}
-                <table>
-                    <thead>{this.renderHeader()}</thead>
-                    <tbody>{this.renderList(this.state.pokemonList)}</tbody>
-                </table>
-                {this.state.next && <button onClick={this.onNextButtonClick}>Next</button>}
-                {this.state.prev && <button onClick={this.onPrevButtonClick}>Prev</button>}
-            </div>    
-        )
-    }
+    window.scrollTo(0, 0)
+    return (
+        <div>
+            <h1>Pokemon List:</h1>
+            {prev && <button onClick={onPrevButtonClick}>Prev</button>}
+            {next && <button onClick={onNextButtonClick}>Next</button> }
+            <table>
+                <thead>{renderHeader()}</thead>
+                <tbody>{renderList(pokemonList)}</tbody>
+            </table>
+            {prev && <button onClick={onPrevButtonClick}>Prev</button>}
+            {next && <button onClick={onNextButtonClick}>Next</button> }
+        </div>
+    )
 }
 
 export default withRouter(PokemonList);
